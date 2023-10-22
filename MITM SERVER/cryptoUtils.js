@@ -16,7 +16,7 @@ let gcd = (a, b) => {
     return !b ? a : gcd(b, a % b);
 }
 
-let modMultInverse = (a, m) => {
+let egcd = (a, m) => {
     // Extended Euclidian algorithm
     let oldR = a;
     let r = m;
@@ -42,7 +42,7 @@ let modMultInverse = (a, m) => {
 
 let computPrivate = (e, p, q) => {
     let phi = (p - 1n) * (q - 1n);
-    return modMultInverse(e, phi);
+    return egcd(e, phi);
 }
 
 let powerMod = (b, e, m) => {
@@ -74,4 +74,4 @@ let decrypt = (c, d, n) => {
     }
 }
 
-export { getPrime, modMultInverse, computPrivate, powerMod, encrypt, decrypt, gcd };
+export { getPrime, egcd, computPrivate, powerMod, encrypt, decrypt, gcd };

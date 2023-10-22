@@ -3,16 +3,11 @@ const app = express();
 import * as cUtil from './cryptoUtils.js';
 import fetch from 'node-fetch';
 import http from 'http';
+import { HttpProxyAgent } from 'http-proxy-agent';
 
-let options = {
-    host: "proxy",
-    port: 9003,
-    path: "http://localhost",
-    headers: {
-        Host: "localhost"
-    }
-}
-const message = 123;
+const agent = new HttpProxyAgent('http://localhost:9003');
+const messages = ["Teh C", "Teh O Bing", "Teh Bing Kasong", "Copi O Kasong Bing"];
+// const messages = ["1", "2", "33", "4"];
 
 let serverRSAPbK;
 
@@ -23,28 +18,33 @@ let chat = (c) => {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ msg: c.toString() })
+        body: JSON.stringify({ msg: c }),
+        agent: agent
     }).then(res => res.json())
         .then(res => console.log("Reveived Response: " + res.msg));
 }
 
-app.get('/startChat', function (req, resp) {
-    fetch('http://localhost:9000/helloServer')
+app.use(express.json());
+app.get('/startChat', (req, resp) => {
+    fetch('http://localhost:9000/helloServer', { agent: agent })
         .then(res => res.json())
         .then(res => {
             console.log(res);
             serverRSAPbK = res;
-            let c = cUtil.encrypt(BigInt(message), BigInt(serverRSAPbK.e), BigInt(serverRSAPbK.n));
-            chat(c);
+            messages.forEach(message => {
+                chat(cUtil.encrypt(message, BigInt(serverRSAPbK.e), BigInt(serverRSAPbK.n)));
+            })
             resp.send('Started')
         })
 });
 
-// app.get('/useRSAtwo', function (req, res) {
-//     res.send();
-// });
+app.post('/chatWithMsg', (req, res) => {
+    let msg = req.body.msg;
+    chat(cUtil.encrypt(msg, BigInt(serverRSAPbK.e), BigInt(serverRSAPbK.n)));
+    res.send(msg);
+});
 
-const server = http.Server(options, app);
+const server = http.Server(app);
 
 server.listen(9001, () => {
     console.log(`[-] Server Listening on Port 9001`);

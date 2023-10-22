@@ -1,18 +1,8 @@
-const express = require('express');
-const app = express();
-const fs = require('fs');
-let forge = require('node-forge');
-let math = require('mathjs');
-let cUtil = require('./cryptoUtils');
+import express from 'express';
+import * as cUtil from './cryptoUtils.js';
+import http from 'http';
 
-let options = {
-    host: "proxy",
-    port: 9003,
-    path: "http://localhost",
-    headers: {
-        Host: "localhost"
-    }
-}
+const app = express();
 
 let p1;
 let p2;
@@ -63,27 +53,28 @@ cUtil.getPrime(512)
         }]
 
         app.use(express.json());
-        app.get('/useRSAone', function (req, res) {
+        app.get('/useRSAone', (req, res) => {
             RSA = RSA_SET[0];
             res.send(RSA_SET[0].public);
         });
 
-        app.get('/useRSAtwo', function (req, res) {
+        app.get('/useRSAtwo', (req, res) => {
             RSA = RSA_SET[1];
             res.send(RSA_SET[1].public);
         });
 
-        app.get('/helloServer', function (req, res) {
+        app.get('/helloServer', (req, res) => {
             res.send(RSA.public);
         });
 
-        app.post('/chat', function (req, res) {
-            let m = cUtil.decrypt(BigInt(req.body.msg), RSA.d, RSA.n);
+        app.post('/chat', (req, res) => {
+            let m = cUtil.decrypt(req.body.msg, RSA.d, RSA.n);
             console.log("Reveived Chat message: " + req.body.msg + ", decrypted message: " + m);
-            res.send({ msg: m.toString() });
+            res.send({ msg: "Ok" });
         });
 
-        const server = require('http').Server(options, app);
+        const server = http.Server(app);
+
         server.listen(9000, () => {
             console.log(`[-] Server Listening on Port 9000`);
         });

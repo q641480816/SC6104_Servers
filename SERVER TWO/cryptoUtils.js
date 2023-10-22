@@ -12,21 +12,25 @@ let getPrime = bits => {
     });
 }
 
-let modMultInverse = function (a, m) {
+let gcd = (a, b) => {
+    return !b ? a : gcd(b, a % b);
+}
+
+let modMultInverse = (a, m) => {
     // Extended Euclidian algorithm
-    var oldR = a;
-    var r = m;
-    var oldS = 1n;
-    var s = 0n;
+    let oldR = a;
+    let r = m;
+    let oldS = 1n;
+    let s = 0n;
 
     while (r > 0n) {
-        var quot = oldR / r;
+        let quot = oldR / r;
 
-        var tempR = r;
+        let tempR = r;
         r = oldR - quot * r;
         oldR = tempR;
 
-        var tempS = s;
+        let tempS = s;
         s = oldS - quot * s;
         oldS = tempS;
     }
@@ -43,23 +47,31 @@ let computPrivate = (e, p, q) => {
 
 let powerMod = (b, e, m) => {
     if (m === 1n) return 0n;
-    var res = 1n;
+    let res = 1n;
     b = b % m;
     while (e > 0n) {
-        if (e % 2n === 1n)  //odd number
+        if (e % 2n === 1n) 
             res = (res * b) % m;
-        e = e >> 1n; //divide by 2
+        e = e >> 1n; 
         b = (b * b) % m;
     }
     return res;
 }
 
 let encrypt = (m, e, n) => {
-    return powerMod(m, e, n);
+    if (!isNaN(m)) {
+        return powerMod(BigInt(m), e, n).toString();
+    } else {
+        return m.split('').map(c => powerMod(BigInt(c.charCodeAt(0)), e, n).toString());
+    }
 }
 
 let decrypt = (c, d, n) => {
-    return powerMod(c, d, n);
+    if ((!Array.isArray(c))) {
+        return powerMod(BigInt(c), d, n);
+    } else {
+        return c.map(i => String.fromCharCode(powerMod(BigInt(i), d, n).toString())).reduce((a, b) => a + b, "");
+    }
 }
 
-export {getPrime, modMultInverse, computPrivate, powerMod, encrypt, decrypt};
+export { getPrime, modMultInverse, computPrivate, powerMod, encrypt, decrypt, gcd };

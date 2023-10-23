@@ -10,8 +10,11 @@ let p3;
 let n1;
 let n2;
 let e = BigInt(0X1001);
+let eCP = BigInt(0x101);
 let RSA_SET;
 let RSA;
+let RSA_SPOTIFY;
+let RSA_PIKPAK;
 
 cUtil.getPrime(512)
     .then(res => {
@@ -50,7 +53,25 @@ cUtil.getPrime(512)
             n: n2,
             e: e,
             d: d2
-        }]
+        }];
+
+        RSA_SPOTIFY = {
+            public: { e: e.toString(), n: n1.toString() },
+            p: p1,
+            q: p2,
+            n: n1,
+            e: e,
+            d: d1
+        }
+
+        RSA_PIKPAK = {
+            public: { e: eCP.toString(), n: n1.toString() },
+            p: p1,
+            q: p2,
+            n: n1,
+            e: eCP,
+            d: cUtil.computPrivate(eCP, p1, p2)
+        }
 
         app.use(express.json());
         app.get('/useRSAone', (req, res) => {

@@ -16,7 +16,7 @@ let gcd = (a, b) => {
     return !b ? a : gcd(b, a % b);
 }
 
-let egcd = (a, m) => {
+let inversWithEgcd = (a, m) => {
     // Extended Euclidian algorithm
     let oldR = a;
     let r = m;
@@ -24,14 +24,14 @@ let egcd = (a, m) => {
     let s = 0n;
 
     while (r > 0n) {
-        let quot = oldR / r;
+        let quotient = oldR / r;
 
         let tempR = r;
-        r = oldR - quot * r;
+        r = oldR - quotient * r;
         oldR = tempR;
 
         let tempS = s;
-        s = oldS - quot * s;
+        s = oldS - quotient * s;
         oldS = tempS;
     }
 
@@ -42,7 +42,7 @@ let egcd = (a, m) => {
 
 let computPrivate = (e, p, q) => {
     let phi = (p - 1n) * (q - 1n);
-    return egcd(e, phi);
+    return inversWithEgcd(e, phi);
 }
 
 let powerMod = (b, e, m) => {
@@ -74,4 +74,4 @@ let decrypt = (c, d, n) => {
     }
 }
 
-export { getPrime, egcd, computPrivate, powerMod, encrypt, decrypt, gcd };
+export { getPrime, inversWithEgcd, computPrivate, powerMod, encrypt, decrypt, gcd };
